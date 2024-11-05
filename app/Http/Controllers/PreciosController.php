@@ -47,9 +47,9 @@ class PreciosController extends Controller
     }
  
     public function updateURL($var,$key){
-        $producto = new ListaController();
+        $lista = new ListaController();
         Log::info('traza 3');
-        $producto = $producto->Get_producto_id($key);
+        $producto = $lista->Get_producto_id($key);
         $producto->url = $var;
         $producto->save();
     }
@@ -73,8 +73,10 @@ class PreciosController extends Controller
         $precioFinal=0.0;
         $crawler = $this->obtenerDom($this->conexionGuzzle($url));
         Log::info('traza 3 conexion correcta del crawler con '.$url);
-        $elementosPrecio = $crawler->filter('.precios_por_cantidad_item_col')->filter('.col-xs-7');
-        $elementoprecio= $crawler->filter('.contenedor-precio .fsize-33 .fweight-extrabold');
+
+
+        $elementosPrecio = $crawler->filter('.precios_por_cantidad_item_col')->filter('.col-xs-5');
+        $elementoprecio= $crawler->filter('.contenedor-precio .fweight-extrabold');
         if ($elementosPrecio->count() > 0) {
             $precioFinal = $elementosPrecio->text(); // Obtiene el texto del primer elemento encontrado
             Log::info('traza a coincide precios_por_cantidad_item_col'.$url);
@@ -89,23 +91,25 @@ class PreciosController extends Controller
         return explode(" ",$precioFinal)[1];
     }
 
+
+    // Sin Url 
+
     public function buscaEnWurthSinUrl() {
         ini_set('max_execution_time', 300);
         Log::info('traza 1 empieza con clic en front');
         $productos = new ListaController();
         $productos = $productos->getListaSinUrl();
         foreach($productos as $valor){
+            Log::info(json_encode($valor));
             $codigoFormateado="";
             $codigoFormateado = implode('+',explode(' ',trim($valor->codigo_proveedor)));
             $url="https://www.wurth.com.ar/es/busqueda/?term=".$codigoFormateado;
             Log::info('traza 2 previo a actualizar sin url '.$valor->codigo_proveedor);
-            // $codigoFormateado = implode('+',explode(' ',trim('95772 01 553')));
-            // $url="https://www.wurth.com.ar/es/busqueda/?term=".$codigoFormateado;
-            // Log::info('traza 2 previo a actualizar sin url 95772 01 553');
             $resultadoArray= $this->actualizarSinURL($url,$valor->codigo_proveedor); 
          
             $valor->precio_final= $resultadoArray['precioFinal'];
             $valor->url= $resultadoArray['urlFinal'];
+            Log::info(json_encode($valor));
             $valor->save();
         }
         return redirect()->back();
@@ -114,7 +118,7 @@ class PreciosController extends Controller
     public function actualizarSinURL($url, $codigo) {
         $precioFinal=0.0;
         try {
-        $crawler = $this->obtenerDom($this->conexionGuzzle($url));
+            $crawler = $this->obtenerDom($this->conexionGuzzle($url));
         } catch (RequestException $e) {
             // Captura el error específico de HTTP 404
             if ($e->hasResponse() && $e->getResponse()->getStatusCode() == 404) {
@@ -129,12 +133,10 @@ class PreciosController extends Controller
                 throw $e; // Re-lanza la excepción original si no es un error 404
             }
         }
-
         $ruta="sin url";
         if($crawler->filter('.producto')->count()>0)
-        {Log::info('valores encontrados por filter .producto, cantidad: '.$crawler->filter('.producto')->count());}
+            {Log::info('valores encontrados por filter .producto, cantidad: '.$crawler->filter('.producto')->count());}
         $crawler->filter('.producto')->each(function ($elemento) use ($codigo,&$precioFinal,&$ruta) {
-            // dd($url);
             $ruta = $elemento->filter('.titulo')->attr('href');
             $nvoArray=[];
             Log::info($codigo.' es el codigo para traza 3 para probar nuevo Crawler '.$ruta);
@@ -142,20 +144,23 @@ class PreciosController extends Controller
             $elementoprecio= $nuevoCrawler->filter(' .fsize-33 .fweight-extrabold');
             if($elementoprecio->count()> 0 ) {
                 Log::info('traza 4 producto encontrado por ser unico '.$ruta);
-                // dd($ruta);
                 $precioFinal =  explode(" ",$elementoprecio->text())[1]; 
-                return ['precioFinal'=>$precioFinal,'urlFinal'=>$ruta];
+                return ['precioFinal'=>$precioFinal,'urlFinal'=>$ruta]; 
             }elseif($nuevoCrawler->filter('.codigo')->count()> 0){
                 Log::info('traza 5 Lista de productos encontrada '.$ruta);
+
                 $elementosLista = $nuevoCrawler->filter('.codigo');
+
                 $elementosLista->each(function (Crawler $node) use (&$nvoArray,$codigo,&$precioFinal,$ruta){
-                    $code=$node->text();
+                    $code=str_replace("Cód: ","",$node->text());
                     Log::info($code.' Es el codigo encontrado, traza 6 Busqueda del producto en lista '.$codigo);
+                    Log::info('traza 6b :'.trim($code) ." - ". trim($codigo));
+                    Log::info(json_encode($nvoArray));
                     if(!in_array($code,$nvoArray)){
                         $nvoArray[]=$code;
                         try {
-                                $ruta = $node->previousAll()->filter('a')->attr('href');
-                                if (\str_contains($code,$codigo)) {
+                                if (trim($code) === trim($codigo)) {
+                                    $ruta = $node->previousAll()->filter('a')->attr('href');
                                     Log::info('traza 7 Codigo encontrado en lista con la url '.$ruta);
                                     $precioFinal = (double)$this->descargarPrecioFinal($ruta);
                                     return ['precioFinal'=>$precioFinal,'urlFinal'=>$ruta];

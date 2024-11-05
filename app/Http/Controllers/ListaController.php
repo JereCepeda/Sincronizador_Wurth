@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Lista;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 
 class ListaController extends Controller
