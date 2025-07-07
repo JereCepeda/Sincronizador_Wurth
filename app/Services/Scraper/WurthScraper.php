@@ -22,7 +22,7 @@ class WurthScraper
             $crawler = new Crawler($html);
 
             $elemento = $crawler->filter('.contenedor-precio .fweight-extrabold');
-            if ($elemento->count() > 0) {
+            if ($elemento->count() > 0) {  
                 $texto = $elemento->text();
                 return $this->limpiarPrecio($texto);
             }
