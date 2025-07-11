@@ -1,31 +1,36 @@
 <?php 
 
-namespace App\Services;
+namespace App\Services\Http;
 
 use GuzzleHttp\Client;
+use App\Services\Http\HttpClientInterface;
+use GuzzleHttp\Cookie\CookieJar;
 
-class GuzzleClientService
+class GuzzleClientService implements HttpClientInterface
 {
     protected Client $client;
 
+    protected CookieJar $cookieJar;
+
     public function __construct()
     {
-        $this->client = new Client();
+        $this->cookieJar = new CookieJar();
+        $this->client = new Client(['cookies' => $this->cookieJar]);
     }
     public function getClient(): Client
     {
         return $this->client;
     }   
 
-    public function get(string $url): string
+    public function get(string $url)
     {
-        $response = $this->client->get('https://www.wurth.com.ar/mi-cuenta.html', ['cookies' => true]);
+        $response = $this->client->get($url, ['cookies' => $this->cookieJar]);
         return $response->getBody()->getContents();
     }
 
     public function post(string $url, array $data): string
     {
-        $response = $this->client->post('https://www.wurth.com.ar/login.html', [
+        $response = $this->client->post($url, [
             'headers' => [
                 'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:140.0) Gecko/20100101 Firefox/140.0',
                 'X-Requested-With' => 'XMLHttpRequest',
@@ -37,8 +42,8 @@ class GuzzleClientService
                 'email'  => 'jcepeda@solucioneshm.com.ar',
                 'clave'  => '22*Amato!',
             ],
-            'cookies' => true,
-    ]);
+            'cookies' => $this->cookieJar]);
+            
         return $response->getBody()->getContents();
     }
     

@@ -2,69 +2,82 @@
 
 namespace App\Services\Scraper;
 
-use App\Services\GuzzleClientService;
-use Symfony\Component\DomCrawler\Crawler;
-use Illuminate\Support\Facades\Log;
 
-class WurthScraper
+use App\Services\Scraper\DomParser;
+use Illuminate\Support\Facades\Log;
+use App\Services\Http\GuzzleClientService;
+use App\Services\Scraper\WurthSearchService;
+
+class WurthScraper implements ScraperInterface
 {
     protected GuzzleClientService $http;
+    protected WurthSearchService $search;
+    protected DomParser $parser;
 
-    public function __construct(GuzzleClientService $http)
+    public function __construct(GuzzleClientService $http, WurthSearchService $search, DomParser $parser)
     {
         $this->http = $http;
+        $this->search = $search;
+        $this->parser = $parser;
     }
 
-    public function obtenerPrecio(string $url): ?float
+    
+    public function obtenerPrecioPorCodigoProveedor(string $codigo): ?float
     {
         try {
+            $this->http->post('https://www.wurth.com.ar/login.html', [
+                'action' => 'authenticate',
+                'home'   => '',
+                'email'  => 'jcepeda@solucioneshm.com.ar',
+                'clave'  => '22*Amato!',
+            ]);
+
+            $url = $this->search->buscarUrlProducto($codigo);
+            if (!$url) {
+                Log::warning("Producto no encontrado: $codigo");
+                return null;
+            }
+
             $html = $this->http->get($url);
-            $crawler = new Crawler($html);
-
-            $elemento = $crawler->filter('.contenedor-precio .fweight-extrabold');
-            if ($elemento->count() > 0) {  
-                $texto = $elemento->text();
-                return $this->limpiarPrecio($texto);
-            }
+            return $this->parser->extraerPrecio($html);
 
         } catch (\Exception $e) {
-            Log::error("Error al scrapear URL $url: " . $e->getMessage());
+            Log::error("Scraping fallido: {$e->getMessage()}");
+            return null;
         }
-
-        return null;
     }
 
-    public function buscarYExtraerDesdeListado(string $urlBusqueda, string $codigo): array
-    {
-        try {
-            $html = $this->http->get($urlBusqueda);
-            $crawler = new Crawler($html);
+    // public function buscarYExtraerDesdeListado(string $urlBusqueda, string $codigo): array
+    // {
+    //     try {
+    //         $html = $this->http->get($urlBusqueda);
+    //         $crawler = new Crawler($html);
 
-            $productos = $crawler->filter('.producto');
+    //         $productos = $crawler->filter('.producto');
 
-            foreach ($productos as $domElement) {
-                $elemento = new Crawler($domElement);
+    //         foreach ($productos as $domElement) {
+    //             $elemento = new Crawler($domElement);
 
-                $codigoExtraido = $elemento->filter('.codigo')->text('');
-                if (trim(str_replace("Cód: ", "", $codigoExtraido)) === trim($codigo)) {
-                    $url = $elemento->filter('.titulo')->attr('href');
-                    $precio = $this->obtenerPrecio($url);
-                    return [
-                        'precioFinal' => $precio,
-                        'urlFinal' => $url,
-                    ];
-                }
-            }
+    //             $codigoExtraido = $elemento->filter('.codigo')->text('');
+    //             if (trim(str_replace("Cód: ", "", $codigoExtraido)) === trim($codigo)) {
+    //                 $url = $elemento->filter('.titulo')->attr('href');
+    //                 $precio = $this->obtenerPrecio($url);
+    //                 return [
+    //                     'precioFinal' => $precio,
+    //                     'urlFinal' => $url,
+    //                 ];
+    //             }
+    //         }
 
-        } catch (\Exception $e) {
-            Log::error("Error buscando producto $codigo: " . $e->getMessage());
-        }
+    //     } catch (\Exception $e) {
+    //         Log::error("Error buscando producto $codigo: " . $e->getMessage());
+    //     }
 
-        return [
-            'precioFinal' => 0.0,
-            'urlFinal' => 'sin url',
-        ];
-    }
+    //     return [
+    //         'precioFinal' => 0.0,
+    //         'urlFinal' => 'sin url',
+    //     ];
+    // }
 
     protected function limpiarPrecio(string $texto): float
     {

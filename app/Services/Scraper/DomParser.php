@@ -1,6 +1,7 @@
 <?php
 namespace App\Services\Scraper;
 
+use Illuminate\Support\Facades\Log;
 use Symfony\Component\DomCrawler\Crawler;
 
 class DomParser
@@ -10,25 +11,25 @@ class DomParser
         return new Crawler($html);
     }
 
-    public function extraerPrecio(Crawler $crawler): ?float
+     public function extraerPrecio(string $html): ?float
     {
-        $precio = null;
-
-        $cantidad = $crawler->filter('.precios_por_cantidad_item_col .col-xs-5');
-        $unitario = $crawler->filter('.contenedor-precio .fweight-extrabold');
-
-        if ($cantidad->count()) {
-            $precio = $this->limpiarPrecio($cantidad->text());
-        } elseif ($unitario->count()) {
-            $precio = $this->limpiarPrecio($unitario->text());
+        $crawler = new Crawler($html);
+        $elemento = $crawler->filter('.lst_precio');
+        info("Links encontrados: " . $elemento->count()); 
+        if ($elemento->count() === 0) {
+            return null;
+        }else if ($elemento->count() > 1) {
+            Log::warning("Se encontraron múltiples precios, se usará el primero.");
         }
 
-        return $precio;
+        $texto = $elemento->text();
+        return $this->limpiarPrecio($texto);
     }
 
     private function limpiarPrecio(string $texto): float
     {
-        $partes = explode(' ', trim($texto));
-        return isset($partes[1]) ? (float) str_replace(',', '.', $partes[1]) : 0.0;
+        $texto = preg_replace('/[^\d,]/', '', $texto);
+        $texto = str_replace(',', '.', $texto);
+        return (float) $texto;
     }
 }

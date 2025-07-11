@@ -2,11 +2,12 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use GuzzleHttp\Cookie\CookieJar;
 use Tests\TestCase;
-use App\Services\GuzzleClientService;
+use GuzzleHttp\Cookie\CookieJar;
+use Illuminate\Support\Facades\Log;
+use App\Services\Http\GuzzleClientService;
+use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class GuzzleClientServiceTest extends TestCase
 {
@@ -54,7 +55,7 @@ class GuzzleClientServiceTest extends TestCase
         $protectedResponse = $service->getClient()->get($protectedUrl, ['cookies' => $jar]);
 
         $protectedHtml = $protectedResponse->getBody()->getContents();
-
+        Log::info("HTML de la página protegida: $protectedHtml");
         // Validar que estamos logueados (buscando algo que solo aparece logueado)
         $this->assertStringContainsString('Mi cuenta', $protectedHtml);
     }
