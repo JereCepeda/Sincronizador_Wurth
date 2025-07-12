@@ -14,8 +14,8 @@ class DomParser
      public function extraerPrecio(string $html): ?float
     {
         $crawler = new Crawler($html);
-        $elemento = $crawler->filter('.lst_precio');
-        info("Links encontrados: " . $elemento->count()); 
+        $elemento = $crawler->filter('.f_producto_precios');
+        info("Log DomParser Links encontrados: " . $elemento->count()); 
         if ($elemento->count() === 0) {
             return null;
         }else if ($elemento->count() > 1) {

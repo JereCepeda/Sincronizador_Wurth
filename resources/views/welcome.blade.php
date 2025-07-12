@@ -61,7 +61,7 @@
                             <button type="submit" class="btn btn-secondary ">Buscar en Wurth SIN URL</button>
                         </form>
                     </div>
-                    <form action="{{ route('POST_actualizaprecio') }}" method="POST">
+                    <form action="{{ route('GET_actualizaprecio') }}" method="GET">
                         @csrf
                         <button type="submit" class="btn btn-warning w-25 d-block mx-auto">Actualizar Precios</button>
                     </form>

@@ -47,6 +47,12 @@ class WurthScraper implements ScraperInterface
         }
     }
 
+     protected function limpiarPrecio(string $texto): float
+    {
+        $partes = explode(' ', $texto);
+        return isset($partes[1]) ? (float)str_replace(',', '.', $partes[1]) : 0.0;
+    }
+
     // public function buscarYExtraerDesdeListado(string $urlBusqueda, string $codigo): array
     // {
     //     try {
@@ -79,9 +85,5 @@ class WurthScraper implements ScraperInterface
     //     ];
     // }
 
-    protected function limpiarPrecio(string $texto): float
-    {
-        $partes = explode(' ', $texto);
-        return isset($partes[1]) ? (float)str_replace(',', '.', $partes[1]) : 0.0;
-    }
+   
 }
