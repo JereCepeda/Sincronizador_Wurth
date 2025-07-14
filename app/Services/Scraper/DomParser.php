@@ -14,14 +14,13 @@ class DomParser
      public function extraerPrecio(string $html): ?float
     {
         $crawler = new Crawler($html);
-        $elemento = $crawler->filter('.f_producto_precios');
+        $elemento = $crawler->filter('.precio');
         info("Log DomParser Links encontrados: " . $elemento->count()); 
         if ($elemento->count() === 0) {
-            return null;
+                return null;
         }else if ($elemento->count() > 1) {
             Log::warning("Se encontraron múltiples precios, se usará el primero.");
         }
-
         $texto = $elemento->text();
         return $this->limpiarPrecio($texto);
     }

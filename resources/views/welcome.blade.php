@@ -45,43 +45,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Funciones Wurth -->
-        <div class="col-md-9">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <div class="section-title">Acciones con Wurth</div>
-                    <div class="display-flex">
-                        <form action="{{ route('GET_wurth') }}" method="GET" class="mb-2">
-                            @csrf
-                            <button type="submit" class="btn btn-secondary ">Buscar URL en Wurth</button>
-                        </form>
-                        <form action="{{ route('GET_wurth_sinurl') }}" method="GET" class="mb-2">
-                            @csrf
-                            <button type="submit" class="btn btn-secondary ">Buscar en Wurth SIN URL</button>
-                        </form>
-                    </div>
-                    <form action="{{ route('GET_actualizaprecio') }}" method="GET">
-                        @csrf
-                        <button type="submit" class="btn btn-warning w-25 d-block mx-auto">Actualizar Precios</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Exportar -->
-        <div class="col-md-9">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <div class="section-title">Descargar archivo Excel</div>
-                    <form action="{{ route('GET_exportarexcel') }}" method="GET">
-                        @csrf
-                        <button type="submit" class="btn btn-success w-25 d-block mx-auto">Exportar Excel</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
     </div>
 </div>
 </body>

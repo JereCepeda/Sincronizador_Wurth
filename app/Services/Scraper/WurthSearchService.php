@@ -14,7 +14,7 @@ Class WurthSearchService
         $this->http = $http;
     }
 
-     public function buscarUrlProducto(string $codigo): ?string
+    public function buscarUrlProducto(string $codigo): ?string
     {
         $urlBusqueda = "https://www.wurth.com.ar/?action=buscador_codigo_barras&term=" . urlencode($codigo);
 

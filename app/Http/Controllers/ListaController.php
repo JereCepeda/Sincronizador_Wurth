@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Lista;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Yajra\DataTables\Facades\DataTables;
 
 class ListaController extends Controller
 {
@@ -32,5 +33,19 @@ class ListaController extends Controller
     {
         $this->listasinurl = Lista::selectRaw('id,codigo_proveedor,precio_final,url')->where('url','=',"sin url")->get();
         return $this->listasinurl;
+    }
+    public function GET_productos()
+    {
+        return view('productos');
+    }
+    public function GET_datatable(Request $request)
+    {
+        if ($request->ajax()) {
+        $productos = Lista::select(['codigo_proveedor', 'precio_final', 'url']);
+
+        return DataTables::of($productos)->make(true);
+    }
+
+    abort(403);
     }
 }

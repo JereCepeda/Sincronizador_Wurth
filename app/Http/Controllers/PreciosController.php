@@ -2,10 +2,30 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use App\Services\ProductoUpdater;
+use Illuminate\Support\Facades\Log;
 
 class PreciosController extends Controller
 {   
+    public function updatePrecios(Request $request, ProductoUpdater $updater)
+        {
+            log::info('Iniciando actualización de precios con código: ' . json_encode($request->all()));
+            $codigo = $request->input('codigo');
+            if ($codigo) {
+                $updater->actualizarPreciosConUrl($codigo);
+            } else {
+                Log::warning("No se proporcionó un código de proveedor para actualizar precios.");
+            }
+            return redirect()->back();
+        }
+
+    public function updateSinUrl(ProductoUpdater $updater)
+    {
+        $updater->actualizarPreciosSinUrl();
+        return redirect()->back();
+    }
+
     
     // public function conexionGuzzle($url){
         
@@ -172,17 +192,6 @@ class PreciosController extends Controller
     //     });
     //     return ['precioFinal'=>$precioFinal,'urlFinal'=>$ruta];
     // }
- public function updatePrecios(ProductoUpdater $updater)
-    {
-        $updater->actualizarPreciosConUrl();
-        return redirect()->back();
-    }
-
-    public function updateSinUrl(ProductoUpdater $updater)
-    {
-        $updater->actualizarPreciosSinUrl();
-        return redirect()->back();
-    }
-
+    
 }
      
