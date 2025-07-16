@@ -5,16 +5,16 @@ namespace App\Services\Scraper;
 
 use App\Services\Scraper\DomParser;
 use Illuminate\Support\Facades\Log;
-use App\Services\Http\GuzzleClientService;
+use App\Services\Http\HttpClientInterface;
 use App\Services\Scraper\WurthSearchService;
 
 class WurthScraper implements ScraperInterface
 {
-    protected GuzzleClientService $http;
+    protected HttpClientInterface $http;
     protected WurthSearchService $search;
     protected DomParser $parser;
 
-    public function __construct(GuzzleClientService $http, WurthSearchService $search, DomParser $parser)
+    public function __construct(HttpClientInterface $http, WurthSearchService $search, DomParser $parser)
     {
         $this->http = $http;
         $this->search = $search;
@@ -25,12 +25,7 @@ class WurthScraper implements ScraperInterface
     public function obtenerPrecioPorCodigoProveedor(string $codigo): ?float
     {
         try {
-            $this->http->post('https://www.wurth.com.ar/login.html', [
-                'action' => 'authenticate',
-                'home'   => '',
-                'email'  => 'jcepeda@solucioneshm.com.ar',
-                'clave'  => '22*Amato!',
-            ]);
+            $this->http->login('ventas@solucioneshm.com','Soluciones.H.M.3316');
 
             $url = $this->search->buscarUrlProducto($codigo);
             if (!$url) {
@@ -39,7 +34,7 @@ class WurthScraper implements ScraperInterface
             }
 
             $html = $this->http->get($url);
-            return $this->parser->extraerPrecio($html);
+            return $this->parser->extraerPrecio($html, $codigo);
 
         } catch (\Exception $e) {
             Log::error("Scraping fallido: {$e->getMessage()}");
@@ -53,37 +48,18 @@ class WurthScraper implements ScraperInterface
         return isset($partes[1]) ? (float)str_replace(',', '.', $partes[1]) : 0.0;
     }
 
-    // public function buscarYExtraerDesdeListado(string $urlBusqueda, string $codigo): array
-    // {
-    //     try {
-    //         $html = $this->http->get($urlBusqueda);
-    //         $crawler = new Crawler($html);
+    public function obtenerPrecioDesdeJsonLd(array $jsonLd, string $targetUrl): ?float
+    {
+        if (!isset($jsonLd['hasVariant']) || !is_array($jsonLd['hasVariant'])) {return null;}
 
-    //         $productos = $crawler->filter('.producto');
-
-    //         foreach ($productos as $domElement) {
-    //             $elemento = new Crawler($domElement);
-
-    //             $codigoExtraido = $elemento->filter('.codigo')->text('');
-    //             if (trim(str_replace("Cód: ", "", $codigoExtraido)) === trim($codigo)) {
-    //                 $url = $elemento->filter('.titulo')->attr('href');
-    //                 $precio = $this->obtenerPrecio($url);
-    //                 return [
-    //                     'precioFinal' => $precio,
-    //                     'urlFinal' => $url,
-    //                 ];
-    //             }
-    //         }
-
-    //     } catch (\Exception $e) {
-    //         Log::error("Error buscando producto $codigo: " . $e->getMessage());
-    //     }
-
-    //     return [
-    //         'precioFinal' => 0.0,
-    //         'urlFinal' => 'sin url',
-    //     ];
-    // }
-
-   
+        foreach ($jsonLd['hasVariant'] as $variant) {
+            if (isset($variant['offers']['url'], $variant['offers']['price'])) {
+                $variantUrl = html_entity_decode($variant['offers']['url']);
+                if (trim($variantUrl) === trim($targetUrl)) {
+                    return (float) $variant['offers']['price'];
+                }
+            }
+        }
+        return null;
+    }
 }

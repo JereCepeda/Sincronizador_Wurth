@@ -11,6 +11,8 @@
     <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" 
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <style>
         body {
             background-color: #f8f9fa;
@@ -50,7 +52,7 @@
             <div class="card shadow-sm">
                 <div class="card-body">
                     <div class="section-title">Acciones con Wurth</div>
-                    <div class="display-flex">
+                    <!-- <div class="display-flex">
                         <form action="{{ route('GET_wurth') }}" method="GET" class="mb-2">
                             @csrf
                             <button type="submit" class="btn btn-secondary ">Buscar URL en Wurth</button>
@@ -59,8 +61,8 @@
                             @csrf
                             <button type="submit" class="btn btn-secondary ">Buscar en Wurth SIN URL</button>
                         </form>
-                    </div>
-                    <form action="{{ route('GET_actualizaprecio') }}" method="GET">
+                    </div> -->
+                    <form action="{{ route('GET_AllPrecios') }}" method="POST">
                         @csrf
                         <button type="submit" class="btn btn-warning w-25 d-block mx-auto">Actualizar Precios</button>
                     </form>
@@ -85,7 +87,7 @@
 
 <script>
     $(document).ready(function() {
-        $('#example').DataTable({
+        let table = $('#example').DataTable({
         processing: true,
         serverSide: true,
         ajax: '{{ route("GET_datatable") }}',
@@ -105,7 +107,7 @@
         });
         $(document).on('click', '.actualizar-btn', function () {
             
-        const codigo = $(this).data('codigo');
+        let codigo = $(this).data('codigo');
         console.log('Actualizar producto con código:',codigo);
 
         if (!codigo) return;
@@ -119,11 +121,26 @@
                     codigo: codigo
                 },
                 success: function (response) {
-                    $('#example').DataTable().ajax.reload();
+                    table.ajax.reload(null, false);
+                    toastr.success('Producto actualizado correctamente');
                 },
-                error: function (xhr) {
-                    alert('Error al actualizar el producto');
-                },
+                error:  function (xhr, status, error) {
+                    console.error('Estado:', status);
+                    console.error('Error:', error);
+                    console.error('Respuesta completa:', xhr.responseText);
+
+                    let mensaje = 'Ocurrió un error inesperado';
+
+                    try {
+                        let response = JSON.parse(xhr.responseText);
+                        if (response.message) {
+                            mensaje = response.message;
+                        }
+                    } catch (e) {
+                        mensaje = xhr.responseText;
+                    }
+                    alert('Error al actualizar el producto:\n' + mensaje);                
+                }
             });
         });
     });

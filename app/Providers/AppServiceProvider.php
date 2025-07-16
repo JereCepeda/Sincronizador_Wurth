@@ -13,7 +13,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(HttpClientInterface::class, GuzzleClientService::class);
+        $this->app->singleton(HttpClientInterface::class, function () {
+            return new GuzzleClientService();
+        });
     }
 
     /**

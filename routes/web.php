@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ExcelController;
 use App\Http\Controllers\ListaController;
 use App\Http\Controllers\PreciosController;
+use App\Jobs\ActualizarProductoJob;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,3 +29,10 @@ Route::get('/GET_datatable',[ListaController::class,'GET_datatable'])->name('GET
 
 Route::get('/buscar-sinurl',[PreciosController::class,'buscaEnWurthSinUrl'])->name('GET_wurth_sinurl');
 Route::post('/actualizar-precios',[PreciosController::class,'updatePrecios'])->name('GET_actualizaprecio');
+Route::post('/actualizar-all-precios',[PreciosController::class,'updateAllPrecios'])->name('GET_AllPrecios');
+
+Route::get('/actualizarJob', function () {
+    \App\Jobs\ActualizarProductoJob::dispatch();
+    return response()->json(['success' => true, 'mensaje' => 'Actualización de precios iniciada']);
+})->name('GET_actualizar_job');
+

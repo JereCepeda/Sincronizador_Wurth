@@ -17,21 +17,15 @@ Class WurthSearchService
     public function buscarUrlProducto(string $codigo): ?string
     {
         $urlBusqueda = "https://www.wurth.com.ar/?action=buscador_codigo_barras&term=" . urlencode($codigo);
-
+        $this->http->login('ventas@solucioneshm.com', 'Soluciones.H.M.3316');
         $response = $this->http->get($urlBusqueda);
 
         Log::info("Respuesta WurthSearchService JSON: " . $response);
 
         $json = json_decode($response, true);
 
-        if (!is_array($json) || empty($json['success']) || empty($json['data']['url'])) {
-            Log::warning("No se pudo extraer la URL del JSON para el código: $codigo");
-            return null;
-        }
-
-        // Retornar la URL limpia
-        $url = html_entity_decode($json['data']['url']);
-        info("URL encontrada: $url");
-        return $url;
+        if (!isset($json['success']) || !$json['success'] || empty($json['data']['url'])) {return null;}
+        
+        return $json['data']['url'];
     }
 }

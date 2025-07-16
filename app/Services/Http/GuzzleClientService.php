@@ -28,6 +28,16 @@ class GuzzleClientService implements HttpClientInterface
         return $response->getBody()->getContents();
     }
 
+    public function login(string $email, string $clave): string
+    {
+        return $this->post('https://www.wurth.com.ar/login.html', [
+            'action' => 'authenticate',
+            'home'   => '',
+            'email'  => $email,
+            'clave'  => $clave,
+        ]);
+}
+
     public function post(string $url, array $data): string
     {
         $response = $this->client->post($url, [
@@ -39,8 +49,8 @@ class GuzzleClientService implements HttpClientInterface
             'form_params' => [
                 'action' => 'authenticate',
                 'home'   => '',
-                'email'  => 'jcepeda@solucioneshm.com.ar',
-                'clave'  => '22*Amato!',
+                'email'  => 'ventas@solucioneshm.com',
+                'clave'  => 'Soluciones.H.M.3316',
             ],
             'cookies' => $this->cookieJar]);
             

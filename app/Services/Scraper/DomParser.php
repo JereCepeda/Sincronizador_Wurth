@@ -1,34 +1,28 @@
 <?php
 namespace App\Services\Scraper;
 
-use Illuminate\Support\Facades\Log;
-use Symfony\Component\DomCrawler\Crawler;
-
+use App\Services\Scraper\ImporteSelector;
+use App\Services\Scraper\PrecioSelector;
+use App\Services\Scraper\JsonLdSelector;
+use App\Services\Scraper\PriceExtractorContext;
 class DomParser
 {
-    public function getCrawler(string $html): Crawler
+   
+    protected PriceExtractorContext $context;
+
+    public function __construct()
     {
-        return new Crawler($html);
+        $this->context = new PriceExtractorContext([
+            new JsonLdSelector(),
+        ]);
     }
 
-     public function extraerPrecio(string $html): ?float
+    public function extraerPrecio(string $html,string $url): ?float
     {
-        $crawler = new Crawler($html);
-        $elemento = $crawler->filter('.precio');
-        info("Log DomParser Links encontrados: " . $elemento->count()); 
-        if ($elemento->count() === 0) {
-                return null;
-        }else if ($elemento->count() > 1) {
-            Log::warning("Se encontraron múltiples precios, se usará el primero.");
+        $precioTexto = $this->context->obtenerPrecio($html,$url);
+        if (!$precioTexto) {
+            return null;
         }
-        $texto = $elemento->text();
-        return $this->limpiarPrecio($texto);
-    }
-
-    private function limpiarPrecio(string $texto): float
-    {
-        $texto = preg_replace('/[^\d,]/', '', $texto);
-        $texto = str_replace(',', '.', $texto);
-        return (float) $texto;
+        return $precioTexto;
     }
 }
