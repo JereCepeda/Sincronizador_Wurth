@@ -2,9 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Models\Lista;
 use App\Services\Job\ActualizarProductosJobService;
-use App\Services\ProductoUpdater;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;

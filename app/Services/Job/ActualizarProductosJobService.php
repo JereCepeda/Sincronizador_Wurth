@@ -21,4 +21,4 @@ class ActualizarProductosJobService
         Log::info('Actualización de precios para todos los productos completada');        
     }
 
-}
+}   

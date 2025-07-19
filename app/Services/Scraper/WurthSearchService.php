@@ -18,6 +18,8 @@ Class WurthSearchService
     {
         $urlBusqueda = "https://www.wurth.com.ar/?action=buscador_codigo_barras&term=" . urlencode($codigo);
         $this->http->login('ventas@solucioneshm.com', 'Soluciones.H.M.3316');
+        info("Buscando URL para el código: " . $codigo);
+        info("URL de búsqueda: " . $urlBusqueda);
         $response = $this->http->get($urlBusqueda);
 
         Log::info("Respuesta WurthSearchService JSON: " . $response);

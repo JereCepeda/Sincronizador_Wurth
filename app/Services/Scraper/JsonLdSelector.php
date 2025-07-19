@@ -22,7 +22,6 @@ class JsonLdSelector implements PriceSelectorStrategyInterface
             Log::warning("No se encontró el precio para el código: {$codigo}");
             return null;
         }
-        ;
     }
 
     public function extraerJsonLd(string $html,$codigo)
@@ -50,6 +49,7 @@ class JsonLdSelector implements PriceSelectorStrategyInterface
             if ( isset($jsonLd['@type']) && $jsonLd['@type'] === 'Product' && isset($jsonLd['sku'], $jsonLd['offers']['price'])){
                 $sku = trim(html_entity_decode($jsonLd['sku']));
                 if ($sku === $codigo) 
+                    info("Precio encontrado en Product: " . $jsonLd['offers']['price']);
                     return (float) $jsonLd['offers']['price'];
                 }
 
@@ -58,6 +58,7 @@ class JsonLdSelector implements PriceSelectorStrategyInterface
                 foreach ($jsonLd['hasVariant'] as $variant) {
                     $sku = trim(html_entity_decode($variant['sku'] ?? ''));
                     if ($sku === $codigo && isset($variant['offers']['price'])) 
+                        info("Precio encontrado en hasVariant: " . $variant['offers']['price']);
                         return (float) $variant['offers']['price'];
                     }
                 }

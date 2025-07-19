@@ -10,6 +10,7 @@ class ListasImport implements ToModel{
         'codigo_proveedor' => $row[0], // Ajusta los índices según las columnas de tu archivo Exce
         'precio_final' => $row[1],
         'url'=> null,
+        'descripcion' => $row[2] ?? null, 
         ]);
     }
 

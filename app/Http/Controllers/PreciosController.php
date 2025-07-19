@@ -31,5 +31,15 @@ class PreciosController extends Controller
                 'mensaje' => 'Actualización de precios completada'
             ]);
         }    
+    public function updateAllJob()
+    {
+        Log::info('Iniciando actualización de precios en segundo plano');
+        \App\Jobs\ActualizarProductoJob::dispatch();
+        
+        return response()->json([
+            'success' => true, 
+            'mensaje' => 'Actualización de precios iniciada en segundo plano'
+        ]);
+    }
 }
      
