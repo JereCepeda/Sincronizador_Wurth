@@ -4,15 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Sincronizador Wurth</title>
-    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-    <script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
-    <link href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css" rel="stylesheet">
-    
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" 
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+
     <style>
         body {
             background-color: #f8f9fa;
@@ -26,6 +20,9 @@
             font-size: 1.1rem;
             margin-bottom: 10px;
         }
+
+        .customer-info {            
+             background-color: green;}
     </style>
 </head>
 <body>
@@ -40,6 +37,7 @@
                 <th>codigo_proveedor</th>
                 <th>precio_final</th>
                 <th>url</th>
+                <th>descripcion</th>
             </tr>
         </thead>
         <tbody>
@@ -52,19 +50,13 @@
             <div class="card shadow-sm">
                 <div class="card-body">
                     <div class="section-title">Acciones con Wurth</div>
-                    <!-- <div class="display-flex">
-                        <form action="{{ route('GET_wurth') }}" method="GET" class="mb-2">
-                            @csrf
-                            <button type="submit" class="btn btn-secondary ">Buscar URL en Wurth</button>
-                        </form>
-                        <form action="{{ route('GET_wurth_sinurl') }}" method="GET" class="mb-2">
-                            @csrf
-                            <button type="submit" class="btn btn-secondary ">Buscar en Wurth SIN URL</button>
-                        </form>
-                    </div> -->
-                    <form action="{{ route('GET_AllPrecios') }}" method="POST">
+                    <form>
                         @csrf
                         <button type="submit" class="btn btn-warning w-25 d-block mx-auto">Actualizar Precios</button>
+                    </form>
+                    <form>
+                        @csrf
+                        <button type="submit" class="btn btn-success w-25 d-block mx-auto m-1 actualizaJob">Actualizar Precios 2do Plano</button>
                     </form>
                 </div>
             </div>
@@ -85,6 +77,18 @@
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+<script src="https://cdn.datatables.net/2.3.2/js/dataTables.min.js"></script>
+<link href="https://cdn.datatables.net/2.3.2/css/dataTables.dataTables.min.css" rel="stylesheet">
+
+<!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- JS de Toastr -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js" integrity="sha512-VEd+nq25CkR676O+pLBnDW09R7VQX9Mdiij052gVCp5yVH3jGtH70Ho/UUv4mJDsEdTvqRCFZg0NKGiojGnUCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
 <script>
     $(document).ready(function() {
         let table = $('#example').DataTable({
@@ -95,6 +99,7 @@
                 { data: 'codigo_proveedor', name: 'codigo_proveedor' },
                 { data: 'precio_final', name: 'precio_final' },
                 { data: 'url', name: 'url' },
+                { data: 'descripcion', name: 'descripcion' },
                 {
                     data: 'codigo_proveedor',
                     render: function(data) {
@@ -105,13 +110,37 @@
                 }
             ]
         });
-        $(document).on('click', '.actualizar-btn', function () {
-            
-        let codigo = $(this).data('codigo');
-        console.log('Actualizar producto con código:',codigo);
 
-        if (!codigo) return;
+        
+        $(document).on('click', '.actualizaJob', function (e) {
+            e.preventDefault()
+            $.ajax({
+                url: '{{ route("GET_actualizar_job") }}',
+                method: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: '{{ csrf_token() }}',
+                },
+                success: function (response) {
+                    toastr.options = {
+                        "closeButton": true,
+                        "progressBar": true,
+                        "positionClass": "toast-top-right",
+                    };
+                    toastr.success(response.mensaje, {"iconClass": 'customer-info'});
+                },
+                error:  function (xhr, status, error) {
+                    console.error('Estado:', status);
+                    console.error('Error:', error);
+                    console.error('Respuesta completa:', xhr.responseText);                
+                }
+            });
+        });
 
+        $(document).on('click', '.actualizar-btn', function () { 
+            let codigo = $(this).data('codigo');
+            console.log('Actualizar producto con código:',codigo);
+            if (!codigo) return;
             $.ajax({
                 url: '{{ route("GET_actualizaprecio") }}',
                 method: 'POST',

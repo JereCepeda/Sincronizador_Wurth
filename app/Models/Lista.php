@@ -12,6 +12,7 @@ class Lista extends Model
         'codigo_proveedor',
         'precio_final',
         'url',
+        'descripcion'
     ];
 
     protected $table='listas';

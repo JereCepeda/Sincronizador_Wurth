@@ -22,7 +22,7 @@ class PreciosController extends Controller
     }
 
     public function updateAllPrecios()
-        {
+    {
             Log::info('Iniciando actualización de precios para todos los productos');
             app(ActualizarProductosJobService::class)->ejecutar();
             
@@ -30,6 +30,12 @@ class PreciosController extends Controller
                 'success' => true, 
                 'mensaje' => 'Actualización de precios completada'
             ]);
-        }    
+    }    
+    public function updatePreciosJob()
+    {
+        info('llega al updatePreciosJob');
+        \App\Jobs\ActualizarProductoJob::dispatch();
+        return response()->json(['success' => true, 'mensaje' => 'Actualización de precios iniciada']);
+    }
 }
      

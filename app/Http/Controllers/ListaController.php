@@ -21,7 +21,7 @@ class ListaController extends Controller
     public function GET_datatable(Request $request)
     {
         if ($request->ajax()) {
-        $productos = Lista::select(['codigo_proveedor', 'precio_final', 'url']);
+        $productos = Lista::select(['codigo_proveedor', 'precio_final', 'url','descripcion']);
 
         return DataTables::of($productos)
     ->setTotalRecords($productos->count())

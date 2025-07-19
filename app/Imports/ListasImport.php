@@ -7,9 +7,10 @@ use Maatwebsite\Excel\Concerns\ToModel;
 class ListasImport implements ToModel{
     public function model(array $row)  {
         return new Lista([
-        'codigo_proveedor' => $row[0], // Ajusta los índices según las columnas de tu archivo Exce
-        'precio_final' => $row[1],
-        'url'=> null,
+        'codigo_proveedor' => trim($row[0]),
+        'precio_final' => is_numeric($row[1]) ? floatval($row[1]) : null,
+        'url' => null,
+        'descripcion' => $row[2] ?? null
         ]);
     }
 

@@ -31,8 +31,5 @@ Route::get('/buscar-sinurl',[PreciosController::class,'buscaEnWurthSinUrl'])->na
 Route::post('/actualizar-precios',[PreciosController::class,'updatePrecios'])->name('GET_actualizaprecio');
 Route::post('/actualizar-all-precios',[PreciosController::class,'updateAllPrecios'])->name('GET_AllPrecios');
 
-Route::get('/actualizarJob', function () {
-    \App\Jobs\ActualizarProductoJob::dispatch();
-    return response()->json(['success' => true, 'mensaje' => 'Actualización de precios iniciada']);
-})->name('GET_actualizar_job');
+Route::post('/actualizarJob',[PreciosController::class,'updatePreciosJob'])->name('GET_actualizar_job');
 
