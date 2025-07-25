@@ -1,3 +1,45 @@
+
+# Sincronizador Wurth
+
+Este proyecto realiza un proceso de **web scraping** para obtener información de un sitio web de Wurth Argentina. Utiliza las siguientes tecnologías y patrones:
+
+## Tecnologías y librerías
+- **Symfony Crawler**: Para navegar y extraer datos de páginas web.
+- **Laravel Queue y Jobs**: Para procesar tareas de scraping de manera asíncrona y eficiente.
+
+## Patrones de diseño
+- **Service**: La lógica principal del scraping y procesamiento de datos está encapsulada en servicios para mantener el código organizado y reutilizable.
+- **Strategy**: Se implementan estrategias para manejar diferentes formas de extracción o procesamiento de datos según el contexto.
+
+## Descripción general
+El sistema se encarga de:
+- Extraer información de una web específica mediante web scraping.
+- Procesar los datos utilizando jobs y colas para mejorar el rendimiento y la escalabilidad.
+- Organizar la lógica de negocio usando servicios y estrategias para facilitar el mantenimiento y la extensión del proyecto.
+
+## Requisitos
+- PHP
+- Composer
+- Laravel
+- symfony/dom-crawler
+
+## Instalación
+1. Clonar el repositorio.
+2. Instalar dependencias con Composer:
+   ```
+   composer install
+   ```
+3. Configurar el archivo `.env` según tus necesidades.
+4. Ejecutar migraciones:
+   ```
+   php artisan migrate
+   ```
+
+## Uso
+Lanza el proceso de scraping ejecutando el comando o job correspondiente. Los datos serán procesados en segundo plano utilizando el sistema de colas de Laravel.
+
+---
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
