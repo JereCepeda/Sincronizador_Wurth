@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('url')->nullable();
             $table->string('codigo_proveedor');
-            $table->float('precio_final')->nullable();
+            $table->float('precio_final',12,2)->nullable();
             $table->string('descripcion')->nullable();
             $table->timestamps();
         });

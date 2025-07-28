@@ -27,7 +27,7 @@
 <body>
 <div class="container py-5">
     <h2 class="text-center mb-4">Panel de Sincronización Wurth</h2>
-
+    
     <div class="row justify-content-center">
 
         <!-- Subida de Excel -->
@@ -45,6 +45,22 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div class="row justify-content-center">
+
+        <!-- Redireccion a Datatable Productos -->
+        <div class="col-md-9">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="section-title">Redirigir a Productos</div>
+                    <p class="text-center">Para ver los productos sincronizados, haga clic en el botón a continuación.</p>
+                    <div class="text-center">
+                        <a href="{{ route('GET_productos') }}" class="btn btn-success">Ver Productos</a>
+                    </div>            
+                </div>
+            </div>
+        </div>
+    
     </div>
 </div>
 </body>
