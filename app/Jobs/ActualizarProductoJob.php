@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Services\Job\ActualizarProductosJobService;
+use App\Services\ProductoUpdater;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -14,14 +14,23 @@ class ActualizarProductoJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $signature = 'productos:actualizar-precios';
+
+    protected string $codigo;
+
+    /**
+     * Create a new job instance.
+     */
+    public function __construct(string $codigo)
+    {
+        $this->codigo = $codigo;
+    }
 
     /**
      * Execute the job.
      */
-    public function handle(ActualizarProductosJobService $service): void
+    public function handle(ProductoUpdater $productoUpdater): void
     {
-        $service->ejecutar();
-        info('Todos los productos se actualizaron correctamente');
+        $productoUpdater->actualizarPreciosConUrl($this->codigo);
+        info('Producto actualizado correctamente: ' . $this->codigo);
     }
 }

@@ -5,12 +5,12 @@ namespace App\Http\Controllers;
 use App\Services\Job\ActualizarProductosJobService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Artisan;
 
 class PreciosController extends Controller
 {   
     public function updatePrecios(Request $request)
         {
-            log::info('Iniciando actualización de precios con código: ' . json_encode($request->all()));
             $codigo = $request->input('codigo');
             $updater = app(\App\Services\ProductoUpdater::class);
             if ($codigo) {
@@ -33,13 +33,16 @@ class PreciosController extends Controller
         }    
     public function updateAllJob()
     {
+
         Log::info('Iniciando actualización de precios en segundo plano');
-        \App\Jobs\ActualizarProductoJob::dispatch();
-        
+        $productos = \App\Models\Lista::all();
+        foreach ($productos as $producto) {
+            \App\Jobs\ActualizarProductoJob::dispatch($producto->codigo_proveedor);
+        }
+
         return response()->json([
             'success' => true, 
             'mensaje' => 'Actualización de precios iniciada en segundo plano'
         ]);
     }
 }
-     
